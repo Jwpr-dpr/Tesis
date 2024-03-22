@@ -89,7 +89,7 @@ class Cristal1D:
         self.a_0 = a_0
         self.A = A
         self.B = B
-        self.num = num_rep *2
+        self.num = num_rep 
         pass
     def graficar_cristal(self):
     # Definir el tamaño del plot

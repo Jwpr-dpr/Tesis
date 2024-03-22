@@ -192,3 +192,47 @@ def propagation_matrix(w,angles:np.array,sizes:np.array,refractions:np.array,cri
         mp.append(matrix)
 
     return np.array(mp)
+
+def A(x,cristal:Cristal1D):
+    k_x = k(x)
+    return np.exp(-1j * k_x[0] * cristal.A.a) * (np.cos(k_x[1] * cristal.B.a) - 1j / 2 * np.sin(k_x[1] * cristal.B.a) * (k_x[1] / k_x[0] + k_x[0] / k_x[1]))
+
+def B(x,cristal:Cristal1D):
+    k_x = k(x)
+    return np.exp(1j * k_x[0] * cristal.A.a) * (-1j / 2 * np.sin(k_x[1] * cristal.B.a) * (k_x[1] / k_x[0] - k_x[0] / k_x[1]))
+
+def Cs(x,cristal:Cristal1D):
+    k_x = k(x)
+    return np.exp(-1j * k_x[0] * cristal.A.a) * (1j / 2 * np.sin(k_x[1] * cristal.B.a) * (k_x[1] / k_x[0] - k_x[0] / k_x[1]))
+
+def Ds(x,cristal:Cristal1D):
+    k_x = k(x)
+    return np.exp(1j * k_x[0] * cristal.A.a) * (np.cos(k_x[1] * cristal.B.a) + 1j / 2 * np.sin(k_x[1] * cristal.B.a) * (k_x[1] / k_x[0] + k_x[0] / k_x[1]))
+
+def wave(x):
+    return np.arccos(1 / 2 * (A(x) + Ds(x))) 
+
+def U(x, m):
+    return np.sin((m + 1) * wave(x)) / np.sin(wave(x))
+
+def Ma(x, m):
+    U_prev_1 = U(x, m - 1)
+    U_prev_2 = U(x, m - 2)
+    return np.array([[A(x) * U_prev_1 - U_prev_2, B(x) * U_prev_1],
+                     [Cs(x) * U_prev_1, Ds(x) * U_prev_1 - U_prev_2]])
+
+def mas(x,cristal:Cristal1D):
+    return Ma(x, cristal.num_rep)
+
+def Rss(x):
+    ma_x = mas(x)
+    return np.abs(ma_x[1, 0])**2 / np.abs(ma_x[0, 0])**2
+
+def Tss(x):
+    return 1 / np.abs(mas(x)[0, 0])**2
+
+def masUC(x):
+    return Ma(x, 1)
+
+def X(x):
+    return (1 / np.pi) * np.real(np.arccos((1 / 2) * np.trace(masUC(x))))
