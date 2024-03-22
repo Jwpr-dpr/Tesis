@@ -140,11 +140,11 @@ class Cristal2D:
         fig, ax = plt.subplots()
         
         # Dibujar el cuadrilátero
-        rectangle = Rectangle((-self.cube.x/2, -self.cube.y/2), self.cube.x, self.cube.y, edgecolor='black', facecolor='none')
+        rectangle = Rectangle((-self.cube.x/2, -self.cube.y/2), self.cube.x, self.cube.y, edgecolor='black', facecolor='blue')
         ax.add_patch(rectangle)
 
         # Dibujar el círculo
-        circle = Circle((0, 0), self.bar.r, edgecolor='black', facecolor='black')
+        circle = Circle((0, 0), self.bar.r, edgecolor='black', facecolor='red')
         ax.add_patch(circle)
         # Repetir la celda unitaria
         for i in range(self.num):
@@ -153,8 +153,8 @@ class Cristal2D:
                     continue  # Saltar la celda original
                 translation_x = i * self.cube.x
                 translation_y = j * self.cube.y
-                ax.add_patch(Rectangle((-self.cube.x/2 + translation_x, -self.cube.y/2 + translation_y), self.cube.x, self.cube.y, edgecolor='black', facecolor='none'))
-                ax.add_patch(Circle((translation_x, translation_y), self.bar.r, edgecolor='black', facecolor='black'))
+                ax.add_patch(Rectangle((-self.cube.x/2 + translation_x, -self.cube.y/2 + translation_y), self.cube.x, self.cube.y, edgecolor='black', facecolor='blue'))
+                ax.add_patch(Circle((translation_x, translation_y), self.bar.r, edgecolor='black', facecolor='red'))
         
         # Establecer límites de los ejes
         ax.set_xlim(-self.cube.x/2, self.num * self.cube.x - self.cube.x/2)
