@@ -51,7 +51,8 @@ def planeWaves1D(cristal:Cristal1D,numG:int):
         
     return dispersion, points
 
-def planeWaves2D(cristal:Cristal2D):
+def planeWaves2D(cristal:Cristal2D,kpoints):
+    
     
     return
         
