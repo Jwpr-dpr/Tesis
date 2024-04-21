@@ -85,19 +85,15 @@ def planeWaves1D_field(cristal:Cristal2D,numG):
     
     k = np.pi/(15*a)
     in1 = 20
-
-    countG1 = 1
-    countG = 1
+    
     M1 = np.zeros((2*numG+1, 2*numG+1), dtype=complex)
 
-    for G in np.arange(-numG*2*np.pi/a, numG*2*np.pi/a, 2*np.pi/a):
-        for G1 in np.arange(-numG*2*np.pi/a, numG*2*np.pi/a, 2*np.pi/a):
-            M1[countG1-1,countG-1] = chi[countG1-1,countG-1]*(k+G1)*(k+G)
-            countG += 1
-        countG1 += 1
-        countG = 1
+    g = np.arange(-numG*2*np.pi/a, numG*2*np.pi/a, 2*np.pi/a)
+    g1 = np.arange(-numG*2*np.pi/a, numG*2*np.pi/a, 2*np.pi/a)
 
-    countG1 = 1
+    for i in range(len(g1)):
+        for j in range(len(g)):
+            M1[i,j] = chi[i,j] * (k+g1[i]) * (k+g[j])
 
     eigvals, eigvecs = eigh(M1)
     ind = np.argsort(eigvals)
@@ -125,4 +121,11 @@ def planeWaves1D_field(cristal:Cristal2D,numG):
     plt.show()
 
     return
+
+def planeWaves2D_dispersion():
+    return
+
+def planeWaves2D_field():
+    return
+
         
