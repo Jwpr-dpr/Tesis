@@ -52,7 +52,16 @@ def planeWaves1D_dispersion(cristal:Cristal1D,numG:int):
         
     return dispersion, points
 
-def planeWaves1D_field(cristal:Cristal2D,numG):
+def planeWaves1D_field(cristal:Cristal1D,numG:int,band:int):
+    '''
+    Args:
+    Cristal: Object of tipe cristal1D
+    numG: number of plane waves
+    band: the number of plane wave for plotting
+    
+    returns:
+    plot of the electric field in a especific wave
+    '''
     
     l1 = cristal.A.a
     l2 = cristal.B.a
@@ -84,7 +93,7 @@ def planeWaves1D_field(cristal:Cristal2D,numG):
 
     
     k = np.pi/(15*a)
-    in1 = 20
+    
     
     M1 = np.zeros((2*numG+1, 2*numG+1), dtype=complex)
 
@@ -100,12 +109,12 @@ def planeWaves1D_field(cristal:Cristal2D,numG):
     Ds = eigvals[ind]
     Vs = eigvecs[:,ind]
 
-    freq = np.sqrt(abs(Ds[in1-1]))*a/2/np.pi
+    freq = np.sqrt(abs(Ds[band-1]))*a/2/np.pi
 
     div = 15
     div1 = 1500
     x = np.linspace(0, a, div1+1)
-    FieldE = np.abs(calculate_field(x, a, numG, k, Vs, in1))**2
+    FieldE = np.abs(calculate_field(x, a, numG, k, Vs, band))**2
 
     alt = np.max(np.abs(FieldE))
     x1 = np.linspace(0, alt, div+1)
@@ -122,10 +131,10 @@ def planeWaves1D_field(cristal:Cristal2D,numG):
 
     return
 
-def planeWaves2D_dispersion():
+def planeWaves2D_dispersion(cristal:Cristal2D):
     return
 
-def planeWaves2D_field():
+def planeWaves2D_field(cristal:Cristal2D):
     return
 
         
