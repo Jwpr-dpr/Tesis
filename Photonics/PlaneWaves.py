@@ -1,4 +1,4 @@
-from PhotonicCristal import *
+from .PhotonicCristal import *
 from scipy.linalg import eigh
 
 

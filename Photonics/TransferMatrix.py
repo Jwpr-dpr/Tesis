@@ -1,4 +1,6 @@
-from PhotonicCristal import *
+from .PhotonicCristal import *
+import numpy as np
+import matplotlib.pyplot as plt
 
 def dispersion(v:float,theta:float,A:Layer,B:Layer) -> float:
     
@@ -153,13 +155,13 @@ def k(Lambda:float,Angles:np.array,refractions:np.array):
         tabla[i] = tabla[i] * 2 * np.pi/Lambda * np.cos(Angles[i]) * refractions[i]        
     return tabla[:-1] 
 
-def k_i(Lambda, a0, ni):
+def wave_vector_i(Lambda, a0, ni):
     return 2 * (np.pi/Lambda) * np.cos(a0) * ni
 
-def k_f(Lambda, Angles, nf ):
+def wave_vector_f(Lambda, Angles, nf ):
     return 2 * (np.pi/Lambda) * np.cos(Angles[-1]) * nf
 
-def dinamic_matrix(crsital:Cristal1D,refractions:np.array, angles:np.array):
+def dinamic_matrix(cristal:Cristal1D,refractions:np.array, angles:np.array):
     '''
     función para calcular la matriz dinámica de las capas internas
     refractions = lista que contiene los indices de refracción de las capas
@@ -167,7 +169,7 @@ def dinamic_matrix(crsital:Cristal1D,refractions:np.array, angles:np.array):
     num = número de capas
     '''
     md = []
-    for i in range(Cristal1D.num):
+    for i in range(cristal.num):
         inner_list = [[1, 1], [-refractions[i] * np.cos(angles[i]), refractions[i] * np.cos(angles[i])]]
         md.append(inner_list)
     return np.array(md)    
@@ -193,24 +195,24 @@ def propagation_matrix(w,angles:np.array,sizes:np.array,refractions:np.array,cri
 
     return np.array(mp)
 
-def A(x,cristal:Cristal1D):
+def pr_A(x,cristal:Cristal1D):
     k_x = k(x)
     return np.exp(-1j * k_x[0] * cristal.A.a) * (np.cos(k_x[1] * cristal.B.a) - 1j / 2 * np.sin(k_x[1] * cristal.B.a) * (k_x[1] / k_x[0] + k_x[0] / k_x[1]))
 
-def B(x,cristal:Cristal1D):
+def pr_B(x,cristal:Cristal1D):
     k_x = k(x)
     return np.exp(1j * k_x[0] * cristal.A.a) * (-1j / 2 * np.sin(k_x[1] * cristal.B.a) * (k_x[1] / k_x[0] - k_x[0] / k_x[1]))
 
-def Cs(x,cristal:Cristal1D):
+def pr_Cs(x,cristal:Cristal1D):
     k_x = k(x)
     return np.exp(-1j * k_x[0] * cristal.A.a) * (1j / 2 * np.sin(k_x[1] * cristal.B.a) * (k_x[1] / k_x[0] - k_x[0] / k_x[1]))
 
-def Ds(x,cristal:Cristal1D):
+def pr_Ds(x,cristal:Cristal1D):
     k_x = k(x)
     return np.exp(1j * k_x[0] * cristal.A.a) * (np.cos(k_x[1] * cristal.B.a) + 1j / 2 * np.sin(k_x[1] * cristal.B.a) * (k_x[1] / k_x[0] + k_x[0] / k_x[1]))
 
 def wave(x):
-    return np.arccos(1 / 2 * (A(x) + Ds(x))) 
+    return np.arccos(1 / 2 * (pr_A(x) + pr_Ds(x))) 
 
 def U(x, m):
     return np.sin((m + 1) * wave(x)) / np.sin(wave(x))
@@ -218,8 +220,8 @@ def U(x, m):
 def Ma(x, m):
     U_prev_1 = U(x, m - 1)
     U_prev_2 = U(x, m - 2)
-    return np.array([[A(x) * U_prev_1 - U_prev_2, B(x) * U_prev_1],
-                     [Cs(x) * U_prev_1, Ds(x) * U_prev_1 - U_prev_2]])
+    return np.array([[pr_A(x) * U_prev_1 - U_prev_2, pr_B(x) * U_prev_1],
+                     [pr_Cs(x) * U_prev_1, pr_Ds(x) * U_prev_1 - U_prev_2]])
 
 def mas(x,cristal:Cristal1D):
     return Ma(x, cristal.num_rep)
