@@ -2,8 +2,19 @@ from .PhotonicCristal import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-def dispersion(v:float,theta:float,A:Layer,B:Layer) -> float:
-    
+
+ce = 3e8
+
+
+def dispersion(cristal:Cristal1D,unit:float,v:float,theta=0) -> float:
+    units = {'MHz': 1e6, 'GHz': 1e9, 'THz': 1e12}
+    if unit in units:
+        freN = units[unit]
+    else:
+        raise ValueError("Non Valid Unit")
+
+    cte = (cristal.A.a + cristal.B.a)/ce
+
     def MAT() -> float:
         
         def M_t() -> float:
@@ -11,35 +22,43 @@ def dispersion(v:float,theta:float,A:Layer,B:Layer) -> float:
             def M_a():
                 
                 def na_2():
-                    return A.e * A.u
+                    return cristal.A.e * cristal.A.u
                 
                 def Q_a():
-                    return (np.pi / 300) * v * (A.a/2) * np.sqrt(na_2() - np.sin(theta)**2)
+                    return 2 * np.pi * v  * np.sqrt(na_2() - np.sin(theta)**2) * (cristal.A.a/ce)
                 
-                return np.array([[np.cos(1*Q_a()), A.u*A.a/(2 * Q_a()) * np.sin(1 * Q_a()) ],
-                  [-2 * Q_a()/(A.u * A.a) * np.sin(Q_a()) , np.cos(1*Q_a())]])
+                return np.array([[np.cos(1*Q_a()), cristal.A.u*cristal.A.a/(Q_a()) * np.sin(1 * Q_a()) ],
+                  [- Q_a()/(cristal.A.u * cristal.A.a) * np.sin(Q_a()) , np.cos(1*Q_a())]])
             
             def M_b():
                 
                 def nb_2():
-                    return B.e * B.u
+                    return cristal.B.e * cristal.B.u
                 
                 def Q_b():
-                    return (np.pi / 300) * v * (B.a/2) * np.sqrt(nb_2() - np.sin(theta)**2)
+                    return 2 * np.pi * v  * np.sqrt(nb_2() - np.sin(theta)**2) * (cristal.B.a/ce)
                 
-                return np.array([[np.cos(1*Q_b()), A.u*A.a/(2 * Q_b()) * np.sin(1 * Q_b()) ],
-                  [-2 * Q_b()/(B.u * B.a) * np.sin(Q_b()) , np.cos(1*Q_b())]])
+                return np.array([[np.cos(1*Q_b()), cristal.A.u*cristal.A.a/( Q_b()) * np.sin(1 * Q_b()) ],
+                  [-  Q_b()/(cristal.B.u * cristal.B.a) * np.sin(Q_b()) , np.cos(1*Q_b())]])
             
             return np.dot(M_b() , M_a())
 
         return np.trace(M_t())
+    
+    def X():
+        if ((1/2)*MAT()) < -1 :
+            return 1
+        if  ((1/2)*MAT()) > 1 :
+            return -1
+        else:
+            return (1/np.pi) * ((np.arccos((1/2)* MAT()))).real
+        
+    vs = np.arange(0.1,300,0.01) * freN
+    freqs = vs*cte
+    values = [X(v,theta)]
+    values_Neg = [-X(v,theta)]
 
-    if ((1/2)*MAT()) < -1 :
-        return 1
-    if  ((1/2)*MAT()) > 1 :
-        return -1
-    else:
-        return (1/np.pi) * ((np.arccos((1/2)* MAT()))).real
+    return values,values_Neg,freqs
 
         
 
